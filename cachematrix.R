@@ -12,6 +12,14 @@ makeCacheMatrix <- function(x = matrix()) {
     get <- function() x
     setInvMat <- function(invM) invMat <<- invM
     getInvMat <- function() invMat
+    
+    # Check inverse matrix function
+    checkInvMat <- function() {
+        # Check the dimension of x and its inverse matrix
+        if (nrow(x) != nrow(invMat) || ncol(x) != ncol(invMat)) {
+            return(FALSE)
+        }
+    }
     list(set = set, get = get,
          setInvMat = setInvMat,
          getInvMat = getInvMat)
@@ -32,6 +40,7 @@ cacheSolve <- function(x, ...) {
     # reset inverse matrix if the inverse matrix is not existed or incorrect
     invMat <- NULL
     
+    message("New inverse matrix calculated")
     data <- x$get()
     # Check if it is a square matrix
     if (nrow(data) == ncol(data)) {
@@ -46,8 +55,32 @@ cacheSolve <- function(x, ...) {
 }
 
 
-a <- rbind(c(4,2), c(3,9))
+a <- rbind(c(4,3), c(3,2))
 testMat <- makeCacheMatrix(a)
 
 cacheSolve(testMat)
 
+c <- rbind(c(1,0), c(0,2))
+
+checkIdentityMatrix <- function(matrix) {
+    boolean = FALSE
+    for (i in seq_len(nrow(matrix))) {
+        for (j in seq_len(ncol(matrix))) {
+            print(matrix[i,j])
+            
+            if (i == j && matrix[i,j] !=1)
+                return(boolean)
+            if (i!=j && matrix[i,j] !=0)
+                return(boolean)
+        }
+    }
+    boolean = TRUE
+    return(boolean)
+}
+
+if (checkIdentityMatrix(c)){
+    print("OK")
+} else {
+    print("NO")
+}
+    
