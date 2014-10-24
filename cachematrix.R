@@ -25,21 +25,29 @@ cacheSolve <- function(x, ...) {
     invMat <- x$getInvMat()
     # Check if the inverse of matrix is existed
     if(!is.null(invMat)) {
-        # 
         message("getting cached data")
         return(invMat)
     }
+    
+    # reset inverse matrix if the inverse matrix is not existed or incorrect
+    invMat <- NULL
+    
     data <- x$get()
-    tryCatch ({
-        invMat <- solve(data, ...)
-    }, error <- function(e) {
-        print(paste("MY_ERROR:  ",e))
-        return(NA)
-    }, warning <- function(w) {
-        print(paste("MY_ERROR:  ",w))
-        return(NULL)
-    }) 
+    # Check if it is a square matrix
+    if (nrow(data) == ncol(data)) {
+        # Check if this matrix is inversible (determinant != 0)
+        if (det(data) != 0) {
+            invMat <- solve(data, ...)
+        }
+    }
     
     x$setInvMat(invMat)
     invMat 
 }
+
+
+a <- rbind(c(4,2), c(3,9))
+testMat <- makeCacheMatrix(a)
+
+cacheSolve(testMat)
+
