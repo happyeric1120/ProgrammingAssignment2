@@ -14,8 +14,11 @@ makeCacheMatrix <- function(x = matrix()) {
     getInvMat <- function() invMat
     
     # Check inverse matrix function
-    checkInvMat <- function() {
-        message("Checking the inverse matrix....\n ")
+    checkInvMat <- function(showMeg=FALSE) {
+        # flag variable is for determining the type of messages
+        flag <- 0
+        # boolean variable is to return if the inverse matrix is correct
+        boolean <- FALSE
         if (!is.null(invMat)) {
             # Since when the matrix x is set, the invMat will be
             # reset to NULL. The rest of the condition is to prevent
@@ -24,26 +27,34 @@ makeCacheMatrix <- function(x = matrix()) {
             
             # Check the dimension of x and its inverse matrix
             if (nrow(x) != nrow(invMat) || ncol(x) != ncol(invMat)) {
-                message("The inverse matrix is incorrect (The dimension is wrong), please run cacheSolve to update!\n")
-                return(FALSE)
+                flage <- 1
             }
             # Check current inverse matrix is true inverse matrix for the matrix
-            if (checkIdentityMatrix(x%*%invMat)) {
-                message("The inverse matrix is correct, no update needed!\n")
-                return(TRUE)
-            } else {
-                message("The inverse matrix is incorrect (incorrect inverse matrix), please run cacheSolve to update!\n")
-                return(FALSE)
+            else if (checkIdentityMatrix(x%*%invMat)) {
+                flag <- 3
+                boolean <- TRUE
+            } 
+            else {
+                flag <- 2
             }
         }
-        message("The inverse matrix is missing, please run cacheSolve to update!")
-        return(FALSE)
+        if (showMeg) {
+            if (flag == 0)
+                message("The inverse matrix is missing, please run cacheSolve to update!")
+            if (flag == 1)
+                message("The inverse matrix is incorrect (The dimension is wrong), please run cacheSolve to update!\n")
+            if (flag == 2)
+                message("The inverse matrix is incorrect (incorrect inverse matrix), please run cacheSolve to update!\n")
+            if (flag == 3)
+                message("The inverse matrix is correct, no update needed!\n")
+        }
+        return(boolean)
 
         
     }
     # This function is to check if a matrix is a identity matrix.
     checkIdentityMatrix <- function(matrix) {
-        boolean = FALSE
+        boolean <- FALSE
         for (i in seq_len(nrow(matrix))) {
             for (j in seq_len(ncol(matrix))) {
                 
@@ -53,7 +64,7 @@ makeCacheMatrix <- function(x = matrix()) {
                     return(boolean)
             }
         }
-        boolean = TRUE
+        boolean <- TRUE
         return(boolean)
     }
     list(set = set, get = get,
@@ -70,8 +81,12 @@ cacheSolve <- function(x, ...) {
     invMat <- x$getInvMat()
     # Check if the inverse of matrix is existed
     if(!is.null(invMat)) {
-        message("getting cached data")
-        return(invMat)
+        # Run the x$checkInvMat function to verify the correctness of inverse matrix
+        if (x$checkInvMat()) {
+            # The inverse matrix is correct, return it.
+            message("getting cached data")
+            return(invMat)
+        }
     }
     
     # reset inverse matrix if the inverse matrix is not existed or incorrect
@@ -102,7 +117,7 @@ print("The matrix is:")
 print(testMat$get())
 print("Its inverse matrix is")
 print(testMat$getInvMat())
-testMat$checkInvMat()
+testMat$checkInvMat(showMeg=TRUE)
 
 # Create a wrong dimension matrix for inverse matrix
 print("Set a wrong dimension matrix as the inverse matrix")
@@ -110,7 +125,7 @@ b <- rbind(c(1,2,3), c(0,1,4), c(5,6,0))
 testMat$setInvMat(b)
 print("The wrong dimension matrix is: ")
 print(testMat$getInvMat())
-testMat$checkInvMat()
+testMat$checkInvMat(showMeg=TRUE)
 
 # Create a wrong inverse matrix
 print("Set a wrong matrix as the inverse matrix")
@@ -118,11 +133,11 @@ c <- rbind(c(1,2), c(3,4))
 testMat$setInvMat(c)
 print("The wrong dimension matrix is: ")
 print(testMat$getInvMat())
-testMat$checkInvMat()
+testMat$checkInvMat(showMeg=TRUE)
 
 # Running cacheSolve to update inverse matrix
 print("Running cacheSolve to update the inverse matrix")
 cacheSolve(testMat)
 print("The updated inverse matrix is")
 print(testMat$getInvMat())
-testMat$checkInvMat()
+testMat$checkInvMat(showMeg=TRUE)
