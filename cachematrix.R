@@ -15,18 +15,24 @@ makeCacheMatrix <- function(x = matrix()) {
     
     # Check inverse matrix function
     checkInvMat <- function() {
+        message("Checking the inverse matrix....\n ")
         if (!is.null(invMat)) {
+            # Since when the matrix x is set, the invMat will be
+            # reset to NULL. The rest of the condition is to prevent
+            # that the setInvMat function is used and the invMat is
+            # set to a wrong inverse matrix for the x
+            
             # Check the dimension of x and its inverse matrix
             if (nrow(x) != nrow(invMat) || ncol(x) != ncol(invMat)) {
-                message("The inverse matrix is incorrect, please run cacheSolve to update!")
+                message("The inverse matrix is incorrect (The dimension is wrong), please run cacheSolve to update!\n")
                 return(FALSE)
             }
             # Check current inverse matrix is true inverse matrix for the matrix
             if (checkIdentityMatrix(x%*%invMat)) {
-                message("The inverse matrix is correct, no update needed!")
+                message("The inverse matrix is correct, no update needed!\n")
                 return(TRUE)
             } else {
-                message("The inverse matrix is incorrect, please run cacheSolve to update!")
+                message("The inverse matrix is incorrect (incorrect inverse matrix), please run cacheSolve to update!\n")
                 return(FALSE)
             }
         }
@@ -85,7 +91,8 @@ cacheSolve <- function(x, ...) {
     invMat 
 }
 
-# The belows are the testing codes
+# The belows are the testing codes, which can test these two functions
+# are successfully working.
 a <- rbind(c(4,3), c(3,2))
 testMat <- makeCacheMatrix(a)
 cacheSolve(testMat)
@@ -97,9 +104,25 @@ print("Its inverse matrix is")
 print(testMat$getInvMat())
 testMat$checkInvMat()
 
+# Create a wrong dimension matrix for inverse matrix
+print("Set a wrong dimension matrix as the inverse matrix")
 b <- rbind(c(1,2,3), c(0,1,4), c(5,6,0))
-testMat$set(b)
+testMat$setInvMat(b)
+print("The wrong dimension matrix is: ")
+print(testMat$getInvMat())
 testMat$checkInvMat()
 
+# Create a wrong inverse matrix
+print("Set a wrong matrix as the inverse matrix")
+c <- rbind(c(1,2), c(3,4))
+testMat$setInvMat(c)
+print("The wrong dimension matrix is: ")
+print(testMat$getInvMat())
+testMat$checkInvMat()
 
-    
+# Running cacheSolve to update inverse matrix
+print("Running cacheSolve to update the inverse matrix")
+cacheSolve(testMat)
+print("The updated inverse matrix is")
+print(testMat$getInvMat())
+testMat$checkInvMat()
